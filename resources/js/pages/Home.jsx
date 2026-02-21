@@ -869,10 +869,9 @@ function Lancamentos({ referencias, setReferencias }) {
 // MODULE 2 - Cadastros Ref.
 let matId = 1;
 
-function CadastrosRef({ referencias }) {
+function CadastrosRef({ referencias, materiais, setMateriais }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
-  const [materiais, setMateriais] = useState({});
   const [newMat, setNewMat] = useState({ codigo: "", descricao: "", quantidade: "" });
   const [editing, setEditing] = useState(null);
   const [editData, setEditData] = useState({});
@@ -1116,6 +1115,7 @@ export default function Home() {
   const [module, setModule] = useState("lancamentos");
   const [referencias, setReferencias] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [materiais, setMateriais] = useState({});
 
   useEffect(() => {
     fetch('/api/referencias')
@@ -1175,7 +1175,8 @@ export default function Home() {
             {module === "lancamentos" ? (
               <Lancamentos referencias={referencias} setReferencias={setReferencias} />
             ) : (
-              <CadastrosRef referencias={referencias} />
+              <CadastrosRef referencias={referencias} materiais={materiais} setMateriais={setMateriais} />
+              
             )}
           </div>
         </main>
