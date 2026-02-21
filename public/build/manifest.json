@@ -1,0 +1,20 @@
+{
+  "resources/js/app.jsx": {
+    "file": "assets/app-BQAhcElg.js",
+    "name": "app",
+    "src": "resources/js/app.jsx",
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/pages/Home.jsx"
+    ]
+  },
+  "resources/js/pages/Home.jsx": {
+    "file": "assets/Home-CX8h4bed.js",
+    "name": "Home",
+    "src": "resources/js/pages/Home.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  }
+}
