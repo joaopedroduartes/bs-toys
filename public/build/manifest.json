@@ -1,6 +1,6 @@
 {
   "resources/js/app.jsx": {
-    "file": "assets/app-BT74qx3x.js",
+    "file": "assets/app--0OD9iZo.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -9,7 +9,7 @@
     ]
   },
   "resources/js/pages/Home.jsx": {
-    "file": "assets/Home-DUirTCRT.js",
+    "file": "assets/Home-susoNLJo.js",
     "name": "Home",
     "src": "resources/js/pages/Home.jsx",
     "isDynamicEntry": true,

@@ -1,4 +1,4 @@
-import{r as x,j as e}from"./app-BT74qx3x.js";const D=`
+import{r as x,j as e}from"./app--0OD9iZo.js";const D=`
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
