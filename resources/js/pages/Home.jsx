@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
@@ -684,10 +684,18 @@ function Lancamentos({ referencias, setReferencias }) {
   const [editData, setEditData] = useState({});
 
   const handleAdd = () => {
-    if (!newRow.erp.trim() || !newRow.desc.trim() || !newRow.qty.trim()) return;
-    setRows(prev => [...prev, { id: nextId++, ...newRow }]);
-    setNewRow({ erp: "", ref: "", desc: "", qty: "" });
-  };
+  if (!newRow.erp.trim() || !newRow.desc.trim() || !newRow.qty.trim()) return;
+  fetch('/api/referencias', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content },
+    body: JSON.stringify(newRow)
+  })
+    .then(res => res.json())
+    .then(data => {
+      setRows(prev => [...prev, data]);
+      setNewRow({ erp: "", ref: "", desc: "", qty: "" });
+    });
+};
 
   const handleEdit = (row) => {
     setEditing(row.id);
@@ -695,13 +703,26 @@ function Lancamentos({ referencias, setReferencias }) {
   };
 
   const handleSaveEdit = (id) => {
-    setRows(prev => prev.map(r => r.id === id ? { ...r, ...editData } : r));
-    setEditing(null);
-  };
+  fetch(`/api/referencias/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content },
+    body: JSON.stringify(editData)
+  })
+    .then(res => res.json())
+    .then(data => {
+      setRows(prev => prev.map(r => r.id === id ? data : r));
+      setEditing(null);
+    });
+};
 
   const handleDelete = (id) => {
+  fetch(`/api/referencias/${id}`, {
+    method: 'DELETE',
+    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content }
+  }).then(() => {
     setRows(prev => prev.filter(r => r.id !== id));
-  };
+  });
+};
 
   return (
     <div>
@@ -862,21 +883,28 @@ function CadastrosRef({ referencias }) {
   );
 
   const handleSelect = (ref) => {
-    setSelected(ref);
-    setSearch(ref.erp + " — " + ref.desc);
-    if (!materiais[ref.id]) setMateriais(p => ({ ...p, [ref.id]: [] }));
-  };
+  setSelected(ref);
+  setSearch(ref.erp + " — " + ref.desc);
+  fetch(`/api/materiais/${ref.id}`)
+    .then(res => res.json())
+    .then(data => setMateriais(p => ({ ...p, [ref.id]: data })));
+};
 
   const mats = selected ? (materiais[selected.id] || []) : [];
 
   const handleAddMat = () => {
-    if (!newMat.codigo.trim() || !newMat.descricao.trim() || !newMat.quantidade.trim()) return;
-    setMateriais(p => ({
-      ...p,
-      [selected.id]: [...(p[selected.id] || []), { id: matId++, ...newMat }]
-    }));
-    setNewMat({ codigo: "", descricao: "", quantidade: "" });
-  };
+  if (!newMat.codigo.trim() || !newMat.descricao.trim() || !newMat.quantidade.trim()) return;
+  fetch('/api/materiais', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content },
+    body: JSON.stringify({ ...newMat, referencia_id: selected.id })
+  })
+    .then(res => res.json())
+    .then(data => {
+      setMateriais(p => ({ ...p, [selected.id]: [...(p[selected.id] || []), data] }));
+      setNewMat({ codigo: "", descricao: "", quantidade: "" });
+    });
+};
 
   const handleEditMat = (mat) => {
     setEditing(mat.id);
@@ -884,19 +912,26 @@ function CadastrosRef({ referencias }) {
   };
 
   const handleSaveMat = (matItemId) => {
-    setMateriais(p => ({
-      ...p,
-      [selected.id]: p[selected.id].map(m => m.id === matItemId ? { ...m, ...editData } : m)
-    }));
-    setEditing(null);
-  };
+  fetch(`/api/materiais/${matItemId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content },
+    body: JSON.stringify(editData)
+  })
+    .then(res => res.json())
+    .then(data => {
+      setMateriais(p => ({ ...p, [selected.id]: p[selected.id].map(m => m.id === matItemId ? data : m) }));
+      setEditing(null);
+    });
+};
 
   const handleDeleteMat = (matItemId) => {
-    setMateriais(p => ({
-      ...p,
-      [selected.id]: p[selected.id].filter(m => m.id !== matItemId)
-    }));
-  };
+  fetch(`/api/materiais/${matItemId}`, {
+    method: 'DELETE',
+    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content }
+  }).then(() => {
+    setMateriais(p => ({ ...p, [selected.id]: p[selected.id].filter(m => m.id !== matItemId) }));
+  });
+};
 
   return (
     <div>
@@ -1082,6 +1117,12 @@ export default function Home() {
   const [referencias, setReferencias] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    fetch('/api/referencias')
+      .then(res => res.json())
+      .then(data => setReferencias(data));
+  }, []);
+
   return (
     <>
       <style>{styles}</style>
@@ -1132,7 +1173,7 @@ export default function Home() {
 
           <div className="content">
             {module === "lancamentos" ? (
-              <Lancamentos onReferenciasChange={setReferencias} referencias={referencias} setReferencias={setReferencias} />
+              <Lancamentos referencias={referencias} setReferencias={setReferencias} />
             ) : (
               <CadastrosRef referencias={referencias} />
             )}
