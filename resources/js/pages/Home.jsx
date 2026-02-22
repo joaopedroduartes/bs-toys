@@ -877,9 +877,9 @@ function CadastrosRef({ referencias, materiais, setMateriais }) {
   const [editData, setEditData] = useState({});
 
   const filtered = referencias.filter(r =>
-    r.erp.toLowerCase().includes(search.toLowerCase()) ||
+    (r.ref && r.ref.toLowerCase().includes(search.toLowerCase())) ||
     r.desc.toLowerCase().includes(search.toLowerCase())
-  );
+);
 
   const handleSelect = (ref) => {
   setSelected(ref);

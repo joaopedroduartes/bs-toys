@@ -8,6 +8,8 @@ class Material extends Model
 {
     protected $fillable = ['referencia_id', 'codigo', 'descricao', 'quantidade'];
 
+     protected $table = 'materiais';
+
     public function referencia()
     {
         return $this->belongsTo(Referencia::class);
