@@ -15,13 +15,14 @@ export default function RetornoMontagem({ referencias }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({ montagem: "", num_omr: "", num_pedido: "", qtd_caixas: "", responsavel: "" });
+  const [copiado, setCopiado] = useState(null);
 
   useEffect(() => {
-    fetch('/api/retorno-montagem').then(res => res.json()).then(data => {
-      setRetornos(data);
-      setVisiveis(data.map(r => r.id));
-    });
-  }, []);
+  fetch('/api/retorno-montagem').then(res => res.json()).then(data => {
+    setRetornos(data);
+    setVisiveis([]);  // ← começa vazio, só aparece ao lançar
+  });
+}, []);
 
   const filtered = referencias.filter(r =>
     (r.ref && r.ref.toLowerCase().includes(search.toLowerCase())) ||
@@ -54,6 +55,80 @@ export default function RetornoMontagem({ referencias }) {
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('pt-BR');
   const border = "1px solid var(--border)";
   const retornosVisiveis = retornos.filter(r => visiveis.includes(r.id));
+
+  // ── FUNÇÃO COPIAR CARD ──────────────────────────────────────────────────────
+  // Substitua os valores abaixo pelas cores reais do seu CSS:
+  //   --accent  → cor amarela/laranja do tema
+  //   --success → cor verde do tema
+  const ACCENT       = "#f5c518"; // amarelo do cabeçalho
+  const SUCCESS      = "#4caf50"; // verde Total de Peças
+  const BORDER_COLOR = "#cccccc"; // borda neutra para email
+  const TEXT2        = "#888888"; // labels cinza
+  const BG_LABEL     = "#f5f5f5"; // fundo leve nas células de label
+
+  const copiarCard = (r) => {
+    const html = `
+      <table style="border-collapse:collapse;font-family:Arial,sans-serif;width:480px;border:1px solid ${BORDER_COLOR};">
+        <tr>
+          <td colspan="3" style="background:${ACCENT};color:#000;padding:10px 14px;font-weight:700;font-size:14px;text-align:center;text-transform:uppercase;letter-spacing:1px;">
+            ${r.montagem}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:8px 12px;border:1px solid ${BORDER_COLOR};width:50%;background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Responsável</div>
+            <div style="font-size:13px;font-weight:600;color:#111;">${r.responsavel}</div>
+          </td>
+          <td style="padding:8px 12px;border:1px solid ${BORDER_COLOR};background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Data</div>
+            <div style="font-size:13px;font-weight:600;color:#111;">${formatDate(r.created_at)}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px;border:1px solid ${BORDER_COLOR};width:80px;text-align:center;background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Nº Ref.</div>
+            <div style="font-size:13px;font-weight:700;color:#111111;">${r.referencia?.ref || r.referencia?.erp}</div>
+          </td>
+          <td style="padding:8px 10px;border:1px solid ${BORDER_COLOR};text-align:center;background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Descrição</div>
+            <div style="font-size:12px;font-weight:600;color:#111;">${r.referencia?.desc}</div>
+          </td>
+          <td style="padding:8px 8px;border:1px solid ${BORDER_COLOR};width:65px;text-align:center;background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Pçs/Cx</div>
+            <div style="font-size:13px;font-weight:700;color:#111;">${r.referencia?.qty}</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:8px 12px;border:1px solid ${BORDER_COLOR};background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Quant. de CX</div>
+            <div style="font-size:18px;font-weight:700;color:#111;">${r.qtd_caixas}</div>
+          </td>
+          <td style="padding:8px 12px;border:1px solid ${BORDER_COLOR};background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Total de Peças</div>
+            <div style="font-size:18px;font-weight:700;color:${SUCCESS};">${r.qtd_pecas}</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:8px 12px;border:1px solid ${BORDER_COLOR};background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Nº Pedido</div>
+            <div style="font-size:13px;font-weight:600;color:#111;">${r.num_pedido}</div>
+          </td>
+          <td style="padding:8px 12px;border:1px solid ${BORDER_COLOR};background:#fff;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:${TEXT2};margin-bottom:3px;">Nº OMR</div>
+            <div style="font-size:13px;font-weight:600;color:#111;">${r.num_omr}</div>
+          </td>
+        </tr>
+      </table>
+    `;
+
+    const blob = new Blob([html], { type: "text/html" });
+    const clipboardItem = new ClipboardItem({ "text/html": blob });
+    navigator.clipboard.write([clipboardItem]).then(() => {
+      setCopiado(r.id);
+      setTimeout(() => setCopiado(null), 2000);
+    });
+  };
+  // ───────────────────────────────────────────────────────────────────────────
 
   return (
     <div>
@@ -128,8 +203,8 @@ export default function RetornoMontagem({ referencias }) {
                 </div>
               )}
 
-              <div  style={{ display: "flex", justifyContent: "center" }}>
-              <button className="btn btn-primary" style={{ width: "25%", justifyContent: "center" }} onClick={handleAdd}>+ Lançar Retorno</button>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <button className="btn btn-primary" style={{ width: "25%", justifyContent: "center" }} onClick={handleAdd}>+ Lançar Retorno</button>
               </div>
             </div>
           </div>
@@ -188,7 +263,16 @@ export default function RetornoMontagem({ referencias }) {
                   <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{r.num_omr}</div>
                 </div>
               </div>
-              <div className="no-print" style={{ padding: "6px 12px", display: "flex", justifyContent: "flex-end" }}>
+
+              {/* BOTÕES - Copiar + Limpar */}
+              <div className="no-print" style={{ padding: "6px 12px", display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => copiarCard(r)}
+                  style={{ color: copiado === r.id ? "var(--success)" : undefined }}
+                >
+                  {copiado === r.id ? "✔ Copiado!" : "📋 Copiar"}
+                </button>
                 <button className="btn btn-ghost btn-sm" onClick={() => handleLimpar(r.id)}>✕ Limpar</button>
               </div>
             </div>
