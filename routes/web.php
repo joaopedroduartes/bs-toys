@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/test-login', function () {
-    $user = \App\Models\User::where('name', 'admin')->first();
+    $user = \DB::table('users')->where('name', 'admin')->first();
     $check = \Illuminate\Support\Facades\Hash::check('bstoys26', $user->password);
     return [
         'password_hash' => $user->password,
