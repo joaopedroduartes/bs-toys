@@ -30,7 +30,7 @@ export default function RetornoMontagem({ referencias }) {
     r.desc.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSelect = (ref) => { setSelected(ref); setSearch(ref.erp + " — " + ref.desc); };
+  const handleSelect = (ref) => { setSelected(ref); setSearch(ref.ref + " — " + ref.desc); };
 
   const qtdPecas = selected ? Number(selected.qty) : 0;
   const qtdCaixas = Number(form.qtd_caixas) || 0;
@@ -167,7 +167,7 @@ export default function RetornoMontagem({ referencias }) {
                         style={{ padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderBottom: border }}
                         onMouseEnter={e => e.currentTarget.style.background = "var(--surface2)"}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                        <span className="product-erp">{ref.erp}</span>
+                        <span className="product-erp">{ref.ref}</span>
                         <span style={{ fontSize: 14 }}>{ref.desc}</span>
                         <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text2)" }}>{ref.qty} pçs/cx</span>
                       </div>

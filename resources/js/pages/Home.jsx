@@ -668,7 +668,7 @@ function Lancamentos({ referencias, setReferencias }) {
           <div className="module-number">1</div>
           Lançamentos
         </div>
-        <div className="module-desc">Cadastro de códigos ERP por referência de brinquedo</div>
+        <div className="module-desc">Cadastro de Referências e Lançamentos anuais.</div>
       </div>
 
       <div className="table-card">
@@ -764,7 +764,7 @@ function CadastrosRef({ referencias, materiais, setMateriais }) {
 
   const handleSelect = (ref) => {
     setSelected(ref);
-    setSearch(ref.erp + " — " + ref.desc);
+    setSearch(ref.ref + " — " + ref.desc);
     fetch(`/api/materiais/${ref.id}`)
       .then(res => res.json())
       .then(data => setMateriais(p => ({ ...p, [ref.id]: data })));
@@ -835,7 +835,7 @@ function CadastrosRef({ referencias, materiais, setMateriais }) {
               <div key={ref.id} onClick={() => handleSelect(ref)} style={{ padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--border)", transition: "background 0.1s" }}
                 onMouseEnter={e => e.currentTarget.style.background = "var(--surface2)"}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                <span className="product-erp">{ref.erp}</span>
+                <span className="product-erp">{ref.ref}</span>
                 <span style={{ fontSize: 14 }}>{ref.desc}</span>
                 <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text2)" }}>{ref.qty} pçs/cx</span>
               </div>
@@ -851,7 +851,7 @@ function CadastrosRef({ referencias, materiais, setMateriais }) {
       {selected && (
         <div className="product-card">
           <div className="product-card-header">
-            <span className="product-erp">{selected.erp}</span>
+            <span className="product-erp">{selected.ref}</span>
             <span className="product-name">{selected.desc}</span>
             <span className="product-qty">
               <span className="status-dot"></span>
@@ -996,13 +996,15 @@ export default function Home() {
           </div>
 
 <div className="content">
-  {module === "lancamentos" ? (
+  <div style={{ display: module === "lancamentos" ? "block" : "none" }}>
     <Lancamentos referencias={referencias} setReferencias={setReferencias} />
-  ) : module === "cadastros" ? (
+  </div>
+  <div style={{ display: module === "cadastros" ? "block" : "none" }}>
     <CadastrosRef referencias={referencias} materiais={materiais} setMateriais={setMateriais} />
-  ) : module === "retorno" ? (
+  </div>
+  <div style={{ display: module === "retorno" ? "block" : "none" }}>
     <RetornoMontagem referencias={referencias} />
-  ) : null}
+  </div>
 </div>
 
         </main>
