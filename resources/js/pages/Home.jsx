@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import RetornoMontagem from "./RetornoMontagem";
+import CadastroMA from "./CadastroMA";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
@@ -958,6 +959,10 @@ export default function Home() {
                 <span className="nav-icon"><IconSearch /></span>
                 Cadastros Ref.
               </button>
+              <button className={`nav-item ${module === "cadastro-ma" ? "active" : ""}`} onClick={() => { setModule("cadastro-ma"); setSidebarOpen(false); }}>
+  <span className="nav-icon"><IconSearch /></span>
+  Cadastro de M.A
+</button>
               <button
   className={`nav-item ${module === "retorno" ? "active" : ""}`}
   onClick={() => { setModule("retorno"); setSidebarOpen(false); }}
@@ -982,7 +987,9 @@ export default function Home() {
   ? "Módulo 1 — Lançamentos"
   : module === "cadastros"
     ? "Módulo 2 — Cadastros Ref."
-    : "Módulo 3 — Retorno Montagem"}
+    : module === "cadastro-ma"
+  ? "Módulo 3 — Cadastro de M.A"
+    : "Módulo 4 — Retorno Montagem"}
             </div>
             <div className="topbar-right">
               <div className="topbar-badge">
@@ -1002,6 +1009,9 @@ export default function Home() {
   <div style={{ display: module === "cadastros" ? "block" : "none" }}>
     <CadastrosRef referencias={referencias} materiais={materiais} setMateriais={setMateriais} />
   </div>
+  <div style={{ display: module === "cadastro-ma" ? "block" : "none" }}>
+  <CadastroMA />
+</div>
   <div style={{ display: module === "retorno" ? "block" : "none" }}>
     <RetornoMontagem referencias={referencias} />
   </div>
