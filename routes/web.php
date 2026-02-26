@@ -18,12 +18,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/test-login', function () {
-    \DB::table('users')->where('name', 'admin')->update([
-        'password' => \Hash::make('bstoys26')
-    ]);
-    $user = \DB::table('users')->where('name', 'admin')->first();
-    return ['password' => $user->password];
-});
-
 require __DIR__.'/auth.php';
